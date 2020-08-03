@@ -12,6 +12,7 @@ discrimination_df <- complaints_raw[str_detect(complaints_raw$Consumer.complaint
                                     str_detect(complaints_raw$Consumer.complaint.narrative, ' race ') |
                                     str_detect(complaints_raw$Consumer.complaint.narrative, 'racial'),]
 
+#write.csv(discrimination_df,'discrimination.csv')
 ##The code below was for counting the number of times each product appeared in 
 ##the data
 #product_count <- discrimination_df %>%
@@ -59,12 +60,44 @@ company_count <- company_count[1:10,]
 #plot(top_company_offenders)
 kable(company_count)
 
-## Find the states where most occurrences are
-state_count <- discrimination_df %>%
-  group_by(State) %>%
+##Find which companies appear on multiple lists
+multiple_offenders_count <- discrimination_df %>%
+  group_by(Company, Product, add = TRUE) %>%
   summarise(Cases = n())
+ids <- multiple_offenders_count$Company
+multiple_offenders_count <- multiple_offenders_count[duplicated(ids) |
+                                                       duplicated(ids, fromLast = TRUE),]
+#multiple_offenders_count <- multiple_offenders_count %>%
+#  group_by(Company) %>%
+#  summarise(Cases = n())
+multiple_offenders_count <- arrange(multiple_offenders_count,desc(Cases))
+multiple_offenders_count <- multiple_offenders_count[1:10,]
+multiple_offenders_count <- arrange(multiple_offenders_count,Company)
+kable(multiple_offenders_count)
+
+## Find the states where most occurrences are
+#state_count <- discrimination_df %>%
+#  group_by(State) %>%
+#  summarise(Cases = n())
+library(maps)
+usa <- map_data("usa")
+
+ggplot() + 
+  geom_polygon(data = usa, aes(x = long, y = lat, group = group), alpha = 0.2, color = "white") + 
+  geom_point(data = state_count, aes(x = long, y = lat, size = Cases, color = Cases)) +
+  coord_fixed(1.3) +
+  guides(fill=FALSE)
 
 ##Check the following to determining company response
 #Public response
+public_response_count <- discrimination_df %>%
+  group_by(Company.public.response) %>%
+  summarise(Cases = n())
 #response to consumer
+response_to_consumer_count <- discrimination_df %>%
+  group_by(Company.response.to.consumer) %>%
+  summarise(Cases = n())
 #timely response
+timely_response_count <- discrimination_df %>%
+  group_by(Timely.response.) %>%
+  summarise(Cases = n())

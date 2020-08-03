@@ -2,17 +2,18 @@ cat("\014")
 library(ggplot2)
 library(maps)
 usa <- map_data("usa")
+
+#state_centers <- as.data.frame(state.center)
+#state_centers$abb <- as.data.frame(state.abb)
 #state_count <- arrange(state_count,State)
-state_count <- state_count[-1,]
-write.csv(state_count,'states.csv')
+#state_count <- state_count[-1,]
+#write.csv(state_count,'states.csv')
 
 ggplot() + 
   geom_polygon(data = usa, aes(x = long, y = lat, alpha = 0.2, group = group), color = "white") + 
   geom_point(data = state_count, aes(x = long, y = lat, size = Cases, color = Cases)) +
   coord_fixed(1.3) +
   guides(fill=FALSE)
-
-
 
 #states <- unique(usa$region)
 #remove <- c('kansas','kentucky','iowa','montana','vermont','nebraska','rhode island')
